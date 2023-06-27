@@ -2,8 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QVector>
 #include <QLabel>
+#include <array>
+
 
 #include "vendingmachine.h"
 
@@ -30,7 +31,7 @@ private:
 private:
 
     Ui::MainWindow *ui;
-    VendingMachine vendingMachine;
-    QVector<QLabel*> labels;
+    VendingMachine m_vendingMachine;
+    std::array<QLabel*, 9> m_labels;
 };
 #endif // MAINWINDOW_H

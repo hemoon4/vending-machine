@@ -10,60 +10,58 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , vendingMachine()
-    , labels(9)
+    , m_vendingMachine()
+    , m_labels()
 {
     ui->setupUi(this);
     ui->lineEdit->setValidator(new QIntValidator(1, 9));
     displayProducts();
 
-    connect(&vendingMachine, &VendingMachine::updateLabel, this, &MainWindow::updateProductLabel);
+    connect(&m_vendingMachine, &VendingMachine::updateLabel, this, &MainWindow::updateProductLabel);
 
 }
 
 
 void MainWindow::displayProducts()
 {
-    for(int i = 1, rows = 0, cols = 0; i <= 9; ++i, ++cols)
+    std::array<Product, 9> products = m_vendingMachine.getProducts();
+    const QString productInfoTemplate = "%1 \n"
+                                         "Price: %2 \n"
+                                         "Quantity: %3";
+    for(int i = 0; i < 3; ++i)
     {
-        Product product = vendingMachine.getProductByIndex(i-1);
-        const QString text = "%1 \n"
-                             "Price: %2 \n"
-                             "Quantity: %3";
-        const QString formattedText = text.arg(product.getID()).arg(product.getPrice(), 0, 'g', 3).arg(product.getCount());
-        QLabel* label = new QLabel();
-        labels[i-1] = label;
-        label->setText(formattedText);
-        ui->gridLayout->addWidget(label, rows, cols);
-
-        if(i % 3 == 0)
+        for(int j = 0; j < 3; ++j)
         {
-            ++rows;
-            cols = -1;
+            const Product product = products[3*i + j];
+            const QString productInfoText = productInfoTemplate.arg(product.getID()).arg(product.getPrice(), 0, 'g', 3).arg(product.getCount());
+            QLabel* productLabel = new QLabel(productInfoText);
+            m_labels[3*i + j] = productLabel;
+            ui->gridLayout->addWidget(productLabel, i, j);
         }
     }
 }
 
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
+
 
 void MainWindow::updateProductLabel(int index)
 {
-    Product product = vendingMachine.getProductByIndex(index);
+    Product product = m_vendingMachine.getProducts()[index];
     const QString text = "%1 \n"
                          "Price: %2 \n"
                          "Quantity: %3";
     const QString formattedText = text.arg(product.getID()).arg(product.getPrice(), 0, 'g', 3).arg(product.getCount());
-    labels[index]->setText(formattedText);
+    m_labels[index]->setText(formattedText);
 }
 
 void MainWindow::on_pushButton_clicked()
 {
     int id = ui->lineEdit->text().toInt();
-    bool success = vendingMachine.updateProduct(id);
+    m_vendingMachine.updateProduct(id);
 
+}
 
+MainWindow::~MainWindow()
+{
+    delete ui;
 }
 
