@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QLCDNumber>
 #include <QLabel>
 #include <array>
 
@@ -22,7 +23,9 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_pushButton_clicked();
+    void actionButtonClicked();
+    void numberActionClicked();
+    void clearLCDScreen();
     void updateProductLabel(int index);
 
 private:
@@ -33,5 +36,6 @@ private:
     Ui::MainWindow *ui;
     VendingMachine m_vendingMachine;
     std::array<QLabel*, 9> m_labels;
+    QLCDNumber* lcd;
 };
 #endif // MAINWINDOW_H

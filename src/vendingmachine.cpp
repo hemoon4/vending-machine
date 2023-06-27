@@ -1,6 +1,7 @@
 #include "vendingmachine.h"
 
 #include <QRandomGenerator>
+#include <QDebug>
 
 #include <random>
 
@@ -24,6 +25,7 @@ void VendingMachine::updateProduct(int id)
                 emit updateLabel(i);
             }else
             {
+                qDebug() << "Product is empty. ";
                 return;
             }
         }

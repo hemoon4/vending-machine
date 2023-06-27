@@ -14,10 +14,23 @@ MainWindow::MainWindow(QWidget *parent)
     , m_labels()
 {
     ui->setupUi(this);
-    ui->lineEdit->setValidator(new QIntValidator(1, 9));
     displayProducts();
 
+    ui->displayLcdNumber->display("");
+    std::array<QPushButton*, 10> buttons{ui->btn0, ui->btn1, ui->btn2, ui->btn3, ui->btn4, ui->btn5, ui->btn6, ui->btn7, ui->btn8, ui->btn9};
+
+    //when vending machine found product and product is available, update specific label
     connect(&m_vendingMachine, &VendingMachine::updateLabel, this, &MainWindow::updateProductLabel);
+
+    //getting some product of specific id
+    connect(ui->actionButton, SIGNAL(clicked()), this, SLOT(actionButtonClicked()));
+    for(int i = 0; i < buttons.size(); ++i)
+    {
+        connect(buttons[i], SIGNAL(clicked()), this, SLOT(numberActionClicked()));
+    }
+
+    //clear LCD Screen
+    connect(ui->btnClear, SIGNAL(clicked()), this, SLOT(clearLCDScreen()));
 
 }
 
@@ -36,12 +49,31 @@ void MainWindow::displayProducts()
             const QString productInfoText = productInfoTemplate.arg(product.getID()).arg(product.getPrice(), 0, 'g', 3).arg(product.getCount());
             QLabel* productLabel = new QLabel(productInfoText);
             m_labels[3*i + j] = productLabel;
-            ui->gridLayout->addWidget(productLabel, i, j);
+            ui->vendingMachineLayout->addWidget(productLabel, i, j);
         }
     }
 }
 
+void MainWindow::actionButtonClicked()
+{
+    int id = ui->displayLcdNumber->value();
+    m_vendingMachine.updateProduct(id);
 
+}
+
+void MainWindow::numberActionClicked() {
+    QPushButton* button = qobject_cast<QPushButton*>(sender());
+    if(button){
+        int val = ui->displayLcdNumber->value();
+        QString text = val == 0 ? button->text() : QString::number(val).append(button->text());
+        ui->displayLcdNumber->display(text);
+    }
+}
+
+void MainWindow::clearLCDScreen()
+{
+    ui->displayLcdNumber->display("");
+}
 
 void MainWindow::updateProductLabel(int index)
 {
@@ -51,13 +83,6 @@ void MainWindow::updateProductLabel(int index)
                          "Quantity: %3";
     const QString formattedText = text.arg(product.getID()).arg(product.getPrice(), 0, 'g', 3).arg(product.getCount());
     m_labels[index]->setText(formattedText);
-}
-
-void MainWindow::on_pushButton_clicked()
-{
-    int id = ui->lineEdit->text().toInt();
-    m_vendingMachine.updateProduct(id);
-
 }
 
 MainWindow::~MainWindow()

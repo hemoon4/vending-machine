@@ -4,8 +4,6 @@
 
 class Product
 {
-
-
 public:
     Product();
     Product(int id, int count, float price);
